@@ -9,7 +9,7 @@ else
     rm -rf HTMLSourceFiles dynamicDOMElements.html
     mkdir HTMLSourceFiles
     chmod -R 775 HTMLSourceFiles
-    ./casperjs --proxy="proxy.iiit.ac.in:8080" casperFormValidation.js --url=$inputURL
+    casperjs casperFormValidation.js --url=$inputURL
     python mergeFiles.py
     chmod 775 dynamicDOMElements.html
 fi

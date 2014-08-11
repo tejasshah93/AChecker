@@ -24,7 +24,8 @@ global $starttime;
 $mtime = microtime(); 
 $mtime = explode(" ", $mtime); 
 $mtime = $mtime[1] + $mtime[0]; 
-$starttime = $mtime; 
+$starttime = $mtime;
+$dynamicTestingFlag = false;
 
 // input_form - array in session that contains latest user request (needed for file export)
 unset($_SESSION['input_form']); 
@@ -144,7 +145,12 @@ if ($_POST["validate_uri"])
 	}
 	
 	if (!$msg->containsErrors())
-	{
+        {
+                $_POST['validate_paste'] = true;
+                $executeCasper = "./execute.sh ".$_POST['uri'];
+                exec($executeCasper, $out);
+                $dynamicTestingFlag = true;
+
 		$_POST['uri'] = $_REQUEST['uri'] = $uri;
 		$validate_content = @file_get_contents($uri);
 		
@@ -182,8 +188,15 @@ if ($_POST["validate_file"])
 
 if ($_POST["validate_paste"])
 {
-	$validate_content = $_POST["pastehtml"] = $stripslashes($_POST["pastehtml"]);
-	$_SESSION['input_form']['paste'] = $validate_content;
+        $dynamicDOMElements = file_get_contents("dynamicDOMElements.html");
+        $validate_content = $validate_content."\n".$dynamicDOMElements;  
+        if(!$dynamicTestingFlag){                                   
+	        $validate_content = $_POST["pastehtml"] = $stripslashes($_POST["pastehtml"]);
+        	$_SESSION['input_form']['paste'] = $validate_content;
+        }                                                           
+        else                                                        
+                $_POST["validate_paste"] = null;                        
+
 	
 	if (isset($_POST["enable_html_validation"]))
 		$htmlValidator = new HTMLValidator("fragment", $validate_content);
