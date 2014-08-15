@@ -10,7 +10,7 @@ else
     mkdir HTMLSourceFiles
     chmod -R 775 HTMLSourceFiles
     casperjs casperFormValidation.js --url=$inputURL
-    python mergeFiles.py
+    python mergeFiles.py $inputURL
     chmod 775 dynamicDOMElements.html
 fi
 echo $?
