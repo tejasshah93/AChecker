@@ -9,7 +9,7 @@ else
     rm -rf HTMLSourceFiles dynamicDOMElements.html
     mkdir HTMLSourceFiles
     chmod -R 775 HTMLSourceFiles
-    casperjs casperFormValidation.js --url=$inputURL
+    casperjs casperValidation.js --url=$inputURL
     python mergeFiles.py $inputURL
     chmod 775 dynamicDOMElements.html
 fi
