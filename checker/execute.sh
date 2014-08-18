@@ -1,16 +1,25 @@
 #!/bin/bash
 
+# Pass first argument as the URL of the site to be verified
 if [ "$#" -ne 1 ];
 then
     echo "Pass firstArg => URL of the site to be verified"
 else
     inputURL=$1
-    echo "Given "$inputURL
-    rm -rf HTMLSourceFiles dynamicDOMElements.html
+    # Deletes previously generated temporary files/folders
+    rm -rf HTMLSourceFiles dynamicDOMElements.html mergedSourceContent.html
     mkdir HTMLSourceFiles
     chmod -R 775 HTMLSourceFiles
     casperjs casperValidation.js --url=$inputURL
-    python mergeFiles.py $inputURL
-    chmod 775 dynamicDOMElements.html
+    python mergeFiles.py
+    chmod -R 775 dynamicDOMElements.html HTMLSourceFiles
+
+    # 'Selective merging' of original source code of the webpage with dynamicDOMElements
+    sed -i 's/<\/body>/\n<\/body>\n/' HTMLSourceFiles/data0.html
+    sed -i '/<\/body>/{
+                s/<\/body>//g
+                r dynamicDOMElements.html
+            }' HTMLSourceFiles/data0.html
+    cp HTMLSourceFiles/data0.html mergedSourceContent.html
 fi
 echo $?
