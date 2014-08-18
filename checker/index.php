@@ -25,6 +25,9 @@ $mtime = microtime();
 $mtime = explode(" ", $mtime); 
 $mtime = $mtime[1] + $mtime[0]; 
 $starttime = $mtime;
+
+// A boolean flag that decides the whether $_POST['validate_paste'] is enabled,
+// via input form dynamic validation of URL or via general HTML Paste Markup tab selection
 $dynamicTestingFlag = false;
 
 // input_form - array in session that contains latest user request (needed for file export)
@@ -146,6 +149,10 @@ if ($_POST["validate_uri"])
 	
 	if (!$msg->containsErrors())
         {
+                // For validating dynamic content and making contents of mergedSourceContent.html visibile whenever
+                // "Show Source" option is enabled, set $_POST['validate_paste'] true
+                //  Calls "execute.sh" which runs the casperJS code, merges dynamic content with source code
+                //  and stores the final output in mergedSourceContent.html    
                 $_POST['validate_paste'] = true;
                 $executeCasper = "./execute.sh ".$_POST['uri'];
                 exec($executeCasper, $out);
@@ -188,15 +195,15 @@ if ($_POST["validate_file"])
 
 if ($_POST["validate_paste"])
 {
-        $dynamicDOMElements = file_get_contents("dynamicDOMElements.html");
-        $validate_content = $validate_content."\n".$dynamicDOMElements;  
+        // if $_POST['validate_paste'] is set via dynamicTestingFlag or a general HTML Paste Markup tab selection
         if(!$dynamicTestingFlag){                                   
 	        $validate_content = $_POST["pastehtml"] = $stripslashes($_POST["pastehtml"]);
         	$_SESSION['input_form']['paste'] = $validate_content;
         }                                                           
-        else                                                        
-                $_POST["validate_paste"] = null;                        
-
+        else{               
+                $validate_content = file_get_contents("mergedSourceContent.html");
+                $_POST["validate_paste"] = null;
+        }
 	
 	if (isset($_POST["enable_html_validation"]))
 		$htmlValidator = new HTMLValidator("fragment", $validate_content);
